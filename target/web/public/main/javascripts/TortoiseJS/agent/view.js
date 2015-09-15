@@ -115,7 +115,8 @@
     };
 
     View.prototype.transformCanvasToWorld = function(world, canvas, ctx) {
-      this.quality = window.devicePixelRatio != null ? window.devicePixelRatio : 1;
+      var _ref;
+      this.quality = Math.max((_ref = window.devicePixelRatio) != null ? _ref : 2, 2);
       this.maxpxcor = world.maxpxcor != null ? world.maxpxcor : 25;
       this.minpxcor = world.minpxcor != null ? world.minpxcor : -25;
       this.maxpycor = world.maxpycor != null ? world.maxpycor : 25;
@@ -192,31 +193,20 @@
     };
 
     View.prototype.drawWrapped = function(xcor, ycor, size, drawFn) {
-      var x, xs, y, ys, _i, _len, _results;
+      var x, xs, y, ys, _i, _j, _len, _len1;
       xs = this.wrapX ? [xcor - this.worldWidth, xcor, xcor + this.worldWidth] : [xcor];
       ys = this.wrapY ? [ycor - this.worldHeight, ycor, ycor + this.worldHeight] : [ycor];
-      _results = [];
       for (_i = 0, _len = xs.length; _i < _len; _i++) {
         x = xs[_i];
         if ((x + size / 2) > this.minpxcor - 0.5 && (x - size / 2) < this.maxpxcor + 0.5) {
-          _results.push((function() {
-            var _j, _len1, _results1;
-            _results1 = [];
-            for (_j = 0, _len1 = ys.length; _j < _len1; _j++) {
-              y = ys[_j];
-              if ((y + size / 2) > this.minpycor - 0.5 && (y - size / 2) < this.maxpycor + 0.5) {
-                _results1.push(drawFn(x, y));
-              } else {
-                _results1.push(void 0);
-              }
+          for (_j = 0, _len1 = ys.length; _j < _len1; _j++) {
+            y = ys[_j];
+            if ((y + size / 2) > this.minpycor - 0.5 && (y - size / 2) < this.maxpycor + 0.5) {
+              drawFn(x, y);
             }
-            return _results1;
-          }).call(this));
-        } else {
-          _results.push(void 0);
+          }
         }
       }
-      return _results;
     };
 
     View.prototype.turtleType = 1;
@@ -399,7 +389,7 @@
 
     function TurtleDrawer(view) {
       this.view = view;
-      this.turtleShapeDrawer = new CachingShapeDrawer({});
+      this.turtleShapeDrawer = new ShapeDrawer({}, this.view.onePixel);
       this.linkDrawer = new LinkDrawer(this.view, {});
     }
 
@@ -434,7 +424,7 @@
         ctx.rotate(Math.PI);
       }
       ctx.scale(scale, scale);
-      this.turtleShapeDrawer.drawShape(ctx, turtle.color, shapeName);
+      this.turtleShapeDrawer.drawShape(ctx, turtle.color, shapeName, 1 / scale);
       return ctx.restore();
     };
 
@@ -443,12 +433,14 @@
     };
 
     TurtleDrawer.prototype.repaint = function(model) {
-      var links, turtles, world;
+      var links, pixelRatioChanged, turtleShapeListChanged, turtles, world, _ref;
       world = model.world;
       turtles = model.turtles;
       links = model.links;
-      if (world.turtleshapelist !== this.turtleShapeDrawer.shapes && (world.turtleshapelist != null)) {
-        this.turtleShapeDrawer = new CachingShapeDrawer(world.turtleshapelist);
+      turtleShapeListChanged = (world.turtleshapelist != null) && world.turtleshapelist !== this.turtleShapeDrawer.shapes;
+      pixelRatioChanged = this.turtleShapeDrawer.onePixel !== this.view.onePixel;
+      if (turtleShapeListChanged || pixelRatioChanged) {
+        this.turtleShapeDrawer = new ShapeDrawer((_ref = world.turtleshapelist) != null ? _ref : this.turtleShapeDrawer.shapes, this.view.onePixel);
       }
       if (world.linkshapelist !== this.linkDrawer.shapes && (world.linkshapelist != null)) {
         this.linkDrawer = new LinkDrawer(this.view, world.linkshapelist);

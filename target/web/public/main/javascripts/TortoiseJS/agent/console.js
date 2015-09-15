@@ -75,7 +75,7 @@
             return true;
         }
       });
-      return this.on('check-run', function(event) {
+      this.on('check-run', function(event) {
         var agentType, history, input, lastEntry;
         if (event.original.which === ENTER_KEY) {
           input = this.get('input');
@@ -101,8 +101,11 @@
           return this.set('workingEntry', {});
         }
       });
+      return this.on('clear-history', function(event) {
+        return this.set('output', '');
+      });
     },
-    template: "<div class='netlogo-command-center netlogo-widget'>\n  <outputArea output='{{output}}'/>\n\n  <div class='netlogo-command-center-input'>\n    <label>\n      <select value=\"{{agentType}}\">\n      {{#agentTypes}}\n        <option value=\"{{.}}\">{{.}}</option>\n      {{/}}\n      </select>\n    </label>\n    <input type='text'\n           on-keypress='check-run'\n           on-keydown='change-mode'\n           value='{{input}}' />\n  </div>\n</div>"
+    template: "<div class='netlogo-command-center netlogo-widget'>\n  <outputArea output='{{output}}'/>\n\n  <div class='netlogo-command-center-input'>\n    <label>\n      <select value=\"{{agentType}}\">\n      {{#agentTypes}}\n        <option value=\"{{.}}\">{{.}}</option>\n      {{/}}\n      </select>\n    </label>\n    <input type='text'\n           on-keypress='check-run'\n           on-keydown='change-mode'\n           value='{{input}}' />\n    <button on-click='clear-history'>Clear</button>\n  </div>\n</div>"
   });
 
   ENTER_KEY = 13;

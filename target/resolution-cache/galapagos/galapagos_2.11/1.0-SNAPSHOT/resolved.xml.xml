@@ -4,7 +4,7 @@
 		module="galapagos_2.11"
 		revision="1.0-SNAPSHOT"
 		status="integration"
-		publication="20150606154728"
+		publication="20150915060521"
 	>
 		<description>
 		Galapagos
@@ -32,22 +32,25 @@
 		<artifact name="galapagos_2.11" type="doc" ext="jar" conf="docs" e:classifier="javadoc"/>
 	</publications>
 	<dependencies>
-		<dependency org="org.scala-lang" name="scala-compiler" rev="2.11.6" conf="scala-tool->default,optional(default)"/>
-		<dependency org="org.scala-lang" name="scala-library" rev="2.11.6" conf="scala-tool->default,optional(default);compile->default(compile)"/>
-		<dependency org="com.typesafe.play" name="twirl-api_2.11" rev="1.0.2" conf="compile->default(compile)"/>
-		<dependency org="com.typesafe.play" name="play_2.11" rev="2.3.8" conf="compile->default(compile)"/>
-		<dependency org="com.typesafe.play" name="play-test_2.11" rev="2.3.8" conf="test->default(compile)"/>
-		<dependency org="com.typesafe.play" name="play-docs_2.11" rev="2.3.8" conf="docs->default(compile)"/>
-		<dependency org="org.nlogo" name="tortoise" rev="0.1-b842479" conf="compile->default(compile)"/>
-		<dependency org="com.typesafe.play" name="play-cache_2.11" rev="2.3.8" conf="compile->default(compile)"/>
-		<dependency org="com.typesafe.akka" name="akka-testkit_2.11" rev="2.3.8" conf="test->default(compile)"/>
-		<dependency org="org.scalatestplus" name="play_2.11" rev="1.2.0" conf="test->default(compile)"/>
+		<dependency org="org.scala-lang" name="scala-compiler" rev="2.11.7" conf="scala-tool->default,optional(default)"/>
+		<dependency org="org.scala-lang" name="scala-library" rev="2.11.7" conf="scala-tool->default,optional(default);compile->default(compile)"/>
+		<dependency org="com.typesafe.play" name="twirl-api_2.11" rev="1.1.1" conf="compile->default(compile)"/>
+		<dependency org="com.typesafe.play" name="play-server_2.11" rev="2.4.2" conf="compile->default(compile)"/>
+		<dependency org="com.typesafe.play" name="play-test_2.11" rev="2.4.2" conf="test->default(compile)"/>
+		<dependency org="com.typesafe.play" name="play-omnidoc_2.11" rev="2.4.2" conf="docs->default(compile)"/>
+		<dependency org="com.typesafe.play" name="play-netty-server_2.11" rev="2.4.2" conf="compile->default(compile)"/>
+		<dependency org="org.nlogo" name="tortoise" rev="0.1-0aff5c0" conf="compile->default(compile)"/>
+		<dependency org="org.nlogo" name="netlogowebjs" rev="0.1-0aff5c0" conf="compile->default(compile)"/>
+		<dependency org="com.typesafe.play" name="play-cache_2.11" rev="2.4.2" conf="compile->default(compile)"/>
+		<dependency org="com.typesafe.akka" name="akka-testkit_2.11" rev="2.3.11" conf="test->default(compile)"/>
+		<dependency org="org.scalatestplus" name="play_2.11" rev="1.4.0-M3" conf="test->default(compile)"/>
 		<dependency org="org.webjars" name="chosen" rev="1.3.0" conf="compile->default(compile)"/>
-		<dependency org="org.webjars" name="highcharts" rev="4.1.4" conf="compile->default(compile)"/>
+		<dependency org="org.webjars.npm" name="filesaver.js" rev="0.1.1" conf="compile->default(compile)"/>
+		<dependency org="org.webjars" name="highcharts" rev="4.1.6" conf="compile->default(compile)"/>
 		<dependency org="org.webjars" name="jquery" rev="2.1.4" conf="compile->default(compile)"/>
 		<dependency org="org.webjars" name="mousetrap" rev="1.4.6" conf="compile->default(compile)"/>
 		<dependency org="org.webjars" name="markdown-js" rev="0.5.0-1" conf="compile->default(compile)"/>
 		<dependency org="org.webjars" name="ractive" rev="0.7.1" conf="compile->default(compile)"/>
-		<dependency org="org.webjars" name="codemirror" rev="5.2" conf="compile->default(compile)"/>
+		<dependency org="org.webjars" name="codemirror" rev="5.4" conf="compile->default(compile)"/>
 	</dependencies>
 </ivy-module>

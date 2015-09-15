@@ -4,20 +4,23 @@ package views.html
 import play.twirl.api._
 import play.twirl.api.TemplateMagic._
 
-import play.api.templates.PlayMagic._
+
+     object index_Scope0 {
 import models._
 import controllers._
 import play.api.i18n._
+import views.html._
+import play.api.templates.PlayMagic._
 import play.api.mvc._
 import play.api.data._
-import views.html._
 
-/**/
-object index extends BaseScalaTemplate[play.twirl.api.HtmlFormat.Appendable,Format[play.twirl.api.HtmlFormat.Appendable]](play.twirl.api.HtmlFormat) with play.twirl.api.Template0[play.twirl.api.HtmlFormat.Appendable] {
+class index extends BaseScalaTemplate[play.twirl.api.HtmlFormat.Appendable,Format[play.twirl.api.HtmlFormat.Appendable]](play.twirl.api.HtmlFormat) with play.twirl.api.Template0[play.twirl.api.HtmlFormat.Appendable] {
 
   /**/
   def apply():play.twirl.api.HtmlFormat.Appendable = {
-      _display_ {
+    _display_ {
+      {
+
 
 Seq[Any](_display_(/*1.2*/views/*1.7*/.html.mainTheme/*1.22*/ {_display_(Seq[Any](format.raw/*1.24*/("""
 
@@ -86,7 +89,9 @@ Seq[Any](_display_(/*1.2*/views/*1.7*/.html.mainTheme/*1.22*/ {_display_(Seq[Any
 
 """)))}),format.raw/*66.2*/("""
 
-"""))}
+"""))
+      }
+    }
   }
 
   def render(): play.twirl.api.HtmlFormat.Appendable = apply()
@@ -96,13 +101,19 @@ Seq[Any](_display_(/*1.2*/views/*1.7*/.html.mainTheme/*1.22*/ {_display_(Seq[Any
   def ref: this.type = this
 
 }
+
+
+}
+
+/**/
+object index extends index_Scope0.index
               /*
                   -- GENERATED --
-                  DATE: Sat Jun 06 15:48:04 UTC 2015
-                  SOURCE: /home/ubuntu/TFIA/Galapagos/app/views/index.scala.html
-                  HASH: df5e236bf165895dfd7d960d40fc8e2e98ff5a87
-                  MATRIX: 580->1|592->6|615->21|654->23|686->29|1990->1306|2005->1312|2044->1329|2285->1543|2300->1549|2355->1582|5789->4989|5804->4995|5842->5012|5938->5081|5953->5087|6007->5120|6138->5221
-                  LINES: 22->1|22->1|22->1|22->1|24->3|38->17|38->17|38->17|40->19|40->19|40->19|79->58|79->58|79->58|80->59|80->59|80->59|87->66
+                  DATE: Tue Sep 15 06:06:03 UTC 2015
+                  SOURCE: /home/ubuntu/Galapagos/app/views/index.scala.html
+                  HASH: 25bab2abe8a196188ed6ca63466b0a5b6ed9fa1c
+                  MATRIX: 609->1|621->6|644->21|683->23|715->29|2019->1306|2034->1312|2073->1329|2314->1543|2329->1549|2384->1582|5818->4989|5833->4995|5871->5012|5967->5081|5982->5087|6036->5120|6167->5221
+                  LINES: 25->1|25->1|25->1|25->1|27->3|41->17|41->17|41->17|43->19|43->19|43->19|82->58|82->58|82->58|83->59|83->59|83->59|90->66
                   -- GENERATED --
               */
           

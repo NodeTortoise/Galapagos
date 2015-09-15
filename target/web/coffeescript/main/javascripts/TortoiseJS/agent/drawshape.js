@@ -1,15 +1,14 @@
 (function() {
-  var IMAGE_SIZE, LINE_WIDTH, drawPath, setColoring,
+  var IMAGE_SIZE, drawPath, setColoring,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   IMAGE_SIZE = 300;
 
-  LINE_WIDTH = .1 * IMAGE_SIZE;
-
   window.ShapeDrawer = (function() {
-    function ShapeDrawer(shapes) {
+    function ShapeDrawer(shapes, onePixel) {
       this.shapes = shapes;
+      this.onePixel = onePixel;
     }
 
     ShapeDrawer.prototype.setTransparency = function(ctx, color) {
@@ -23,7 +22,12 @@
       ctx.translate(.5, -.5);
       ctx.scale(-1 / IMAGE_SIZE, 1 / IMAGE_SIZE);
       this.setTransparency(ctx, color);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, IMAGE_SIZE, IMAGE_SIZE);
+      ctx.clip();
       this.drawRawShape(ctx, color, shapeName, thickness);
+      ctx.restore();
     };
 
     ShapeDrawer.prototype.drawRawShape = function(ctx, color, shapeName, thickness) {
@@ -31,7 +35,7 @@
       if (thickness == null) {
         thickness = 1;
       }
-      ctx.lineWidth = LINE_WIDTH * thickness;
+      ctx.lineWidth = IMAGE_SIZE * this.onePixel * thickness;
       shape = this.shapes[shapeName] || defaultShape;
       _ref = shape.elements;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -47,13 +51,16 @@
   window.CachingShapeDrawer = (function(_super) {
     __extends(CachingShapeDrawer, _super);
 
-    function CachingShapeDrawer(shapes) {
-      CachingShapeDrawer.__super__.constructor.call(this, shapes);
+    function CachingShapeDrawer(shapes, onePixel) {
+      CachingShapeDrawer.__super__.constructor.call(this, shapes, onePixel);
       this.shapeCache = {};
     }
 
-    CachingShapeDrawer.prototype.drawShape = function(ctx, color, shapeName) {
+    CachingShapeDrawer.prototype.drawShape = function(ctx, color, shapeName, thickness) {
       var shapeCanvas, shapeCtx, shapeKey;
+      if (thickness == null) {
+        thickness = 1;
+      }
       shapeName = shapeName.toLowerCase();
       shapeKey = this.shapeKey(shapeName, color);
       shapeCanvas = this.shapeCache[shapeKey];

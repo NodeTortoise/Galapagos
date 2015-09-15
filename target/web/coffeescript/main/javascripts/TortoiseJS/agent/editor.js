@@ -16,7 +16,7 @@
         };
       })(this));
     },
-    template: "<div class=\"netlogo-code-container\">\n  {{# !readOnly }}\n    <button class=\"netlogo-widget\" on-click=\"recompile\">compile</button>\n  {{/}}\n  {{! Triple bars around code lets it use html formatting if it's there. }}\n  {{! The <pre> tags keep formmatting nice even if it's not html already. }}\n  <div class=\"netlogo-code\">\n  </div>\n</div>"
+    template: "<div class=\"netlogo-code-container netlogo-widget\">\n  {{# !readOnly }}\n    <button class=\"netlogo-widget\" on-click=\"recompile\">compile</button>\n  {{/}}\n  {{! Triple bars around code lets it use html formatting if it's there. }}\n  {{! The <pre> tags keep formmatting nice even if it's not html already. }}\n  <div class=\"netlogo-code\">\n  </div>\n</div>"
   });
 
   keywords = ['BREED', 'TO', 'TO-REPORT', 'END', 'GLOBALS', 'TURTLES-OWN', 'LINKS-OWN', 'PATCHES-OWN', 'DIRECTED-LINK-BREED', 'UNDIRECTED-LINK-BREED', 'EXTENSIONS', '__INCLUDES'];

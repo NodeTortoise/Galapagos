@@ -10,7 +10,6 @@
 
 .cm-s-paraiso-light.CodeMirror {background: #e7e9db; color: #41323f;}
 .cm-s-paraiso-light div.CodeMirror-selected {background: #b9b6b0 !important;}
-.cm-s-paraiso-light.CodeMirror ::-moz-selection { background: #b9b6b0; }
 .cm-s-paraiso-light.CodeMirror ::selection { background: #b9b6b0; }
 .cm-s-paraiso-light.CodeMirror ::-moz-selection { background: #b9b6b0; }
 .cm-s-paraiso-light .CodeMirror-gutters {background: #e7e9db; border-right: 0px;}
@@ -37,4 +36,3 @@
 
 .cm-s-paraiso-light .CodeMirror-activeline-background {background: #CFD1C4 !important;}
 .cm-s-paraiso-light .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}
-/*# sourceMappingURL=paraiso-light.css.map */

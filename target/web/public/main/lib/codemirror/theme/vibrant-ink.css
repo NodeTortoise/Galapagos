@@ -2,7 +2,6 @@
 
 .cm-s-vibrant-ink.CodeMirror { background: black; color: white; }
 .cm-s-vibrant-ink .CodeMirror-selected { background: #35493c !important; }
-.cm-s-vibrant-ink.CodeMirror ::-moz-selection { background: rgba(53, 73, 60, 0.99); }
 .cm-s-vibrant-ink.CodeMirror ::selection { background: rgba(53, 73, 60, 0.99); }
 .cm-s-vibrant-ink.CodeMirror ::-moz-selection { background: rgba(53, 73, 60, 0.99); }
 
@@ -33,4 +32,3 @@
 
 .cm-s-vibrant-ink .CodeMirror-activeline-background {background: #27282E !important;}
 .cm-s-vibrant-ink .CodeMirror-matchingbracket {outline:1px solid grey; color:white !important;}
-/*# sourceMappingURL=vibrant-ink.css.map */

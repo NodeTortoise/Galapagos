@@ -1,6 +1,5 @@
 .cm-s-twilight.CodeMirror { background: #141414; color: #f7f7f7; } /**/
 .cm-s-twilight .CodeMirror-selected { background: #323232 !important; } /**/
-.cm-s-twilight.CodeMirror ::-moz-selection { background: rgba(50, 50, 50, 0.99); }
 .cm-s-twilight.CodeMirror ::selection { background: rgba(50, 50, 50, 0.99); }
 .cm-s-twilight.CodeMirror ::-moz-selection { background: rgba(50, 50, 50, 0.99); }
 
@@ -31,4 +30,3 @@
 
 .cm-s-twilight .CodeMirror-activeline-background {background: #27282E !important;}
 .cm-s-twilight .CodeMirror-matchingbracket {outline:1px solid grey; color:white !important;}
-/*# sourceMappingURL=twilight.css.map */

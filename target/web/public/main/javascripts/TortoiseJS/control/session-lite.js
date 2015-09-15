@@ -1,5 +1,5 @@
 (function() {
-  var DEFAULT_REDRAW_DELAY, DEFAULT_UPDATE_DELAY, FAST_UPDATE_EXP, MAX_REDRAW_DELAY, MAX_UPDATE_DELAY, MAX_UPDATE_TIME, REDRAW_EXP, SLOW_UPDATE_EXP, globalEval, makeCompileCallback, now, _ref,
+  var DEFAULT_REDRAW_DELAY, DEFAULT_UPDATE_DELAY, FAST_UPDATE_EXP, MAX_REDRAW_DELAY, MAX_UPDATE_DELAY, MAX_UPDATE_TIME, REDRAW_EXP, SLOW_UPDATE_EXP, browserCompileCallback, globalEval, now, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   DEFAULT_UPDATE_DELAY = 1000 / 60;
@@ -30,17 +30,23 @@
           return _this.recompile();
         };
       })(this));
+      this.widgetController.ractive.on('exportnlogo', (function(_this) {
+        return function(event) {
+          return _this.exportnlogo(event);
+        };
+      })(this));
       this.widgetController.ractive.on('console.run', (function(_this) {
         return function(code) {
           return _this.run(code);
         };
       })(this));
+      this.drawEveryFrame = false;
     }
 
     SessionLite.prototype.startLoop = function() {
       this.widgetController.updateWidgets();
-      if (typeof startup !== "undefined" && startup !== null) {
-        Call(startup);
+      if (procedures.startup != null) {
+        Call(procedures.startup);
       }
       return requestAnimationFrame(this.eventLoop);
     };
@@ -72,7 +78,7 @@
       var i, maxNumUpdates, updatesDeadline, _i;
       this._eventLoopTimeout = requestAnimationFrame(this.eventLoop);
       updatesDeadline = Math.min(this._lastRedraw + this.redrawDelay(), now() + MAX_UPDATE_TIME);
-      maxNumUpdates = (now() - this._lastUpdate) / this.updateDelay();
+      maxNumUpdates = this.drawEveryFrame ? 1 : (now() - this._lastUpdate) / this.updateDelay();
       for (i = _i = 1; _i <= maxNumUpdates; i = _i += 1) {
         this._lastUpdate = now();
         this.widgetController.runForevers();
@@ -80,7 +86,7 @@
           break;
         }
       }
-      if (i > maxNumUpdates || now() - this._lastRedraw > this.redrawDelay()) {
+      if (i > maxNumUpdates || now() - this._lastRedraw > this.redrawDelay() || this.drawEveryFrame) {
         this._lastRedraw = now();
         this.widgetController.redraw();
       }
@@ -95,7 +101,7 @@
     SessionLite.prototype.recompile = function() {
       world.clearAll();
       this.widgetController.redraw();
-      return compile('code', this.widgetController.code(), [], [], this.widgetController.widgets, function(res) {
+      return codeCompile(this.widgetController.code(), [], [], this.widgetController.widgets, function(res) {
         if (res.model.success) {
           return globalEval(res.model.result);
         } else {
@@ -106,8 +112,49 @@
       });
     };
 
+    SessionLite.prototype.exportnlogo = function() {
+      var exportBlob, exportRequest, exportedNLogo, filename;
+      filename = window.prompt('Filename:', this.widgetController.ractive.get('filename'));
+      if (filename != null) {
+        exportRequest = {
+          info: this.widgetController.ractive.get('info'),
+          code: this.widgetController.ractive.get('code'),
+          widgets: this.widgetController.widgets,
+          turtleShapes: turtleShapes,
+          linkShapes: linkShapes
+        };
+        exportedNLogo = (new BrowserCompiler()).exportNlogo(exportRequest);
+        if (exportedNLogo.success) {
+          exportBlob = new Blob([exportedNLogo.result], {
+            type: "text/plain:charset=utf-8"
+          });
+          return saveAs(exportBlob, filename);
+        } else {
+          return alert(exportedNLogo.result.map(function(err) {
+            return err.message;
+          }).join('\n'));
+        }
+      }
+    };
+
+    SessionLite.prototype.makeForm = function(method, path, data) {
+      var field, form, name, value;
+      form = document.createElement('form');
+      form.setAttribute('method', method);
+      form.setAttribute('action', path);
+      for (name in data) {
+        value = data[name];
+        field = document.createElement('input');
+        field.setAttribute('type', 'hidden');
+        field.setAttribute('name', name);
+        field.setAttribute('value', value);
+        form.appendChild(field);
+      }
+      return form;
+    };
+
     SessionLite.prototype.run = function(code) {
-      return compile('code', this.widgetController.code(), [code], [], this.widgetController.widgets, function(res) {
+      return codeCompile(this.widgetController.code(), [code], [], this.widgetController.widgets, function(res) {
         var result, success;
         success = res.commands[0].success;
         result = res.commands[0].result;
@@ -118,8 +165,6 @@
             return err.message;
           }).join('\n'));
         }
-      }, function(err) {
-        return alert(err);
       });
     };
 
@@ -128,21 +173,40 @@
   })();
 
   window.Tortoise = {
-    fromNlogo: function(nlogo, container, callback) {
-      return compile("nlogo", nlogo, [], [], [], makeCompileCallback(container, callback));
+    normalizedFileName: function(path) {
+      var pathComponents;
+      pathComponents = path.split(/\/|\\/);
+      return decodeURI(pathComponents[pathComponents.length - 1]);
+    },
+    fromNlogo: function(nlogo, container, path, callback) {
+      return nlogoCompile(nlogo, [], [], [], browserCompileCallback(container, callback, this.normalizedFileName(path)));
     },
     fromURL: function(url, container, callback) {
-      return compile("url", url, [], [], [], makeCompileCallback(container, callback));
+      var req;
+      req = new XMLHttpRequest();
+      req.open('GET', url);
+      req.onreadystatechange = (function(_this) {
+        return function() {
+          if (req.readyState === req.DONE) {
+            return nlogoCompile(req.responseText, [], [], [], browserCompileCallback(container, callback, _this.normalizedFileName(url)));
+          }
+        };
+      })(this);
+      return req.send("");
     },
-    fromCompiledModel: function(container, widgets, code, info, compiledSource, readOnly) {
-      var widgetController;
+    fromCompiledModel: function(container, widgetString, code, info, compiledSource, readOnly, filename) {
+      var widgetController, widgets;
       if (compiledSource == null) {
         compiledSource = "";
       }
       if (readOnly == null) {
         readOnly = false;
       }
-      widgetController = bindWidgets(container, widgets, code, info, readOnly);
+      if (filename == null) {
+        filename = "export.nlogo";
+      }
+      widgets = globalEval(widgetString);
+      widgetController = bindWidgets(container, widgets, code, info, readOnly, filename);
       if (window.modelConfig == null) {
         window.modelConfig = {};
       }
@@ -159,10 +223,10 @@
 
   window.AgentModel = tortoise_require('agentmodel');
 
-  makeCompileCallback = function(container, callback) {
+  browserCompileCallback = function(container, callback, filename) {
     return function(res) {
       if (res.model.success) {
-        return callback(Tortoise.fromCompiledModel(container, res.widgets, res.code, res.info, res.model.result));
+        return callback(Tortoise.fromCompiledModel(container, res.widgets, res.code, res.info, res.model.result, false, filename));
       } else {
         return container.innerHTML = res.model.result.map(function(err) {
           return err.message;
@@ -171,23 +235,50 @@
     };
   };
 
-  window.compile = function(source, model, commands, reporters, widgets, onFulfilled, onRejected) {
+  window.nlogoCompile = function(model, commands, reporters, widgets, onFulfilled) {
+    return onFulfilled((new BrowserCompiler()).fromNlogo(model, commands));
+  };
+
+  window.codeCompile = function(code, commands, reporters, widgets, onFulfilled) {
+    var compileParams;
+    compileParams = {
+      code: code,
+      widgets: widgets,
+      commands: commands,
+      reporters: reporters,
+      turtleShapes: typeof turtleShapes !== "undefined" && turtleShapes !== null ? turtleShapes : [],
+      linkShapes: typeof linkShapes !== "undefined" && linkShapes !== null ? linkShapes : []
+    };
+    return onFulfilled((new BrowserCompiler()).fromModel(compileParams));
+  };
+
+  window.serverNlogoCompile = function(model, commands, reporters, widgets, onFulfilled) {
     var compileCallback, compileParams;
-    if (onRejected == null) {
-      onRejected = function(s) {
-        throw s;
-      };
-    }
     compileParams = {
       model: model,
-      widgets: JSON.stringify(widgets),
       commands: JSON.stringify(commands),
       reporters: JSON.stringify(reporters)
     };
     compileCallback = function(res) {
       return onFulfilled(JSON.parse(res));
     };
-    return ajax('/compile-' + source, compileParams, compileCallback);
+    return ajax('/compile-nlogo', compileParams, compileCallback);
+  };
+
+  window.serverCodeCompile = function(code, commands, reporters, widgets, onFulfilled) {
+    var compileCallback, compileParams;
+    compileParams = {
+      code: code,
+      widgets: JSON.stringify(widgets),
+      commands: JSON.stringify(commands),
+      reporters: JSON.stringify(reporters),
+      turtleShapes: JSON.stringify(typeof turtleShapes !== "undefined" && turtleShapes !== null ? turtleShapes : []),
+      linkShapes: JSON.stringify(typeof linkShapes !== "undefined" && linkShapes !== null ? linkShapes : [])
+    };
+    compileCallback = function(res) {
+      return onFulfilled(JSON.parse(res));
+    };
+    return ajax('/compile-code', compileParams, compileCallback);
   };
 
   window.ajax = function(url, params, callback) {

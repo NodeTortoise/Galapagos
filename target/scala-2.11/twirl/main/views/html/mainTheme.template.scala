@@ -4,20 +4,23 @@ package views.html
 import play.twirl.api._
 import play.twirl.api.TemplateMagic._
 
-import play.api.templates.PlayMagic._
+
+     object mainTheme_Scope0 {
 import models._
 import controllers._
 import play.api.i18n._
+import views.html._
+import play.api.templates.PlayMagic._
 import play.api.mvc._
 import play.api.data._
-import views.html._
 
-/**/
-object mainTheme extends BaseScalaTemplate[play.twirl.api.HtmlFormat.Appendable,Format[play.twirl.api.HtmlFormat.Appendable]](play.twirl.api.HtmlFormat) with play.twirl.api.Template1[Html,play.twirl.api.HtmlFormat.Appendable] {
+class mainTheme extends BaseScalaTemplate[play.twirl.api.HtmlFormat.Appendable,Format[play.twirl.api.HtmlFormat.Appendable]](play.twirl.api.HtmlFormat) with play.twirl.api.Template1[Html,play.twirl.api.HtmlFormat.Appendable] {
 
   /**/
   def apply/*1.2*/(content: Html):play.twirl.api.HtmlFormat.Appendable = {
-      _display_ {
+    _display_ {
+      {
+
 
 Seq[Any](format.raw/*1.17*/("""
 
@@ -56,7 +59,9 @@ Seq[Any](format.raw/*1.17*/("""
 
   </body>
 </html>
-"""))}
+"""))
+      }
+    }
   }
 
   def render(content:Html): play.twirl.api.HtmlFormat.Appendable = apply(content)
@@ -66,13 +71,19 @@ Seq[Any](format.raw/*1.17*/("""
   def ref: this.type = this
 
 }
+
+
+}
+
+/**/
+object mainTheme extends mainTheme_Scope0.mainTheme
               /*
                   -- GENERATED --
-                  DATE: Sat Jun 06 15:48:04 UTC 2015
-                  SOURCE: /home/ubuntu/TFIA/Galapagos/app/views/mainTheme.scala.html
-                  HASH: 29430ee50733fbeb5f4b0d98bd4ad3387c1ed595
-                  MATRIX: 507->1|610->16|638->18|801->155|815->161|889->214|967->266|981->272|1038->309|1117->361|1132->367|1201->414|1285->471|1300->477|1353->509|1401->530|1416->536|1471->570|2020->1092|2048->1099|2087->1110
-                  LINES: 19->1|22->1|24->3|29->8|29->8|29->8|30->9|30->9|30->9|31->10|31->10|31->10|32->11|32->11|32->11|33->12|33->12|33->12|50->29|50->29|51->30
+                  DATE: Tue Sep 15 06:06:04 UTC 2015
+                  SOURCE: /home/ubuntu/Galapagos/app/views/mainTheme.scala.html
+                  HASH: 6635dea18f0c5c29811ae561c85bb4b1a07b7e41
+                  MATRIX: 533->1|643->16|671->18|834->155|848->161|922->214|1000->266|1014->272|1071->309|1150->361|1165->367|1234->414|1318->471|1333->477|1386->509|1434->530|1449->536|1504->570|2053->1092|2081->1099|2120->1110
+                  LINES: 20->1|25->1|27->3|32->8|32->8|32->8|33->9|33->9|33->9|34->10|34->10|34->10|35->11|35->11|35->11|36->12|36->12|36->12|53->29|53->29|54->30
                   -- GENERATED --
               */
           

@@ -22,7 +22,6 @@ THE SOFTWARE.
 */
 .cm-s-xq-dark.CodeMirror { background: #0a001f; color: #f8f8f8; }
 .cm-s-xq-dark .CodeMirror-selected { background: #27007A !important; }
-.cm-s-xq-dark.CodeMirror ::-moz-selection { background: rgba(39, 0, 122, 0.99); }
 .cm-s-xq-dark.CodeMirror ::selection { background: rgba(39, 0, 122, 0.99); }
 .cm-s-xq-dark.CodeMirror ::-moz-selection { background: rgba(39, 0, 122, 0.99); }
 .cm-s-xq-dark .CodeMirror-gutters { background: #0a001f; border-right: 1px solid #aaa; }
@@ -52,4 +51,3 @@ THE SOFTWARE.
 
 .cm-s-xq-dark .CodeMirror-activeline-background {background: #27282E !important;}
 .cm-s-xq-dark .CodeMirror-matchingbracket {outline:1px solid grey; color:white !important;}
-/*# sourceMappingURL=xq-dark.css.map */

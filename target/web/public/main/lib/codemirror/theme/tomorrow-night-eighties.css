@@ -10,7 +10,6 @@
 
 .cm-s-tomorrow-night-eighties.CodeMirror {background: #000000; color: #CCCCCC;}
 .cm-s-tomorrow-night-eighties div.CodeMirror-selected {background: #2D2D2D !important;}
-.cm-s-tomorrow-night-eighties.CodeMirror ::-moz-selection { background: rgba(45, 45, 45, 0.99); }
 .cm-s-tomorrow-night-eighties.CodeMirror ::selection { background: rgba(45, 45, 45, 0.99); }
 .cm-s-tomorrow-night-eighties.CodeMirror ::-moz-selection { background: rgba(45, 45, 45, 0.99); }
 .cm-s-tomorrow-night-eighties .CodeMirror-gutters {background: #000000; border-right: 0px;}
@@ -37,4 +36,3 @@
 
 .cm-s-tomorrow-night-eighties .CodeMirror-activeline-background {background: #343600 !important;}
 .cm-s-tomorrow-night-eighties .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}
-/*# sourceMappingURL=tomorrow-night-eighties.css.map */

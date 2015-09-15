@@ -2,7 +2,6 @@
 
 .cm-s-night.CodeMirror { background: #0a001f; color: #f8f8f8; }
 .cm-s-night div.CodeMirror-selected { background: #447 !important; }
-.cm-s-night.CodeMirror ::-moz-selection { background: rgba(68, 68, 119, .99); }
 .cm-s-night.CodeMirror ::selection { background: rgba(68, 68, 119, .99); }
 .cm-s-night.CodeMirror ::-moz-selection { background: rgba(68, 68, 119, .99); }
 .cm-s-night .CodeMirror-gutters { background: #0a001f; border-right: 1px solid #aaa; }
@@ -27,4 +26,3 @@
 
 .cm-s-night .CodeMirror-activeline-background {background: #1C005A !important;}
 .cm-s-night .CodeMirror-matchingbracket {outline:1px solid grey; color:white !important;}
-/*# sourceMappingURL=night.css.map */

@@ -1,6 +1,5 @@
 .cm-s-cobalt.CodeMirror { background: #002240; color: white; }
 .cm-s-cobalt div.CodeMirror-selected { background: #b36539 !important; }
-.cm-s-cobalt.CodeMirror ::-moz-selection { background: rgba(179, 101, 57, .99); }
 .cm-s-cobalt.CodeMirror ::selection { background: rgba(179, 101, 57, .99); }
 .cm-s-cobalt.CodeMirror ::-moz-selection { background: rgba(179, 101, 57, .99); }
 .cm-s-cobalt .CodeMirror-gutters { background: #002240; border-right: 1px solid #aaa; }
@@ -24,4 +23,3 @@
 
 .cm-s-cobalt .CodeMirror-activeline-background {background: #002D57 !important;}
 .cm-s-cobalt .CodeMirror-matchingbracket {outline:1px solid grey;color:white !important}
-/*# sourceMappingURL=cobalt.css.map */

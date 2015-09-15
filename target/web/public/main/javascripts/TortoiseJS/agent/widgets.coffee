@@ -1,5 +1,5 @@
-# (Element or string, [widget], string, string) -> WidgetController
-window.bindWidgets = (container, widgets, code, info, readOnly) ->
+# (Element or string, [widget], string, string, boolean, string) -> WidgetController
+window.bindWidgets = (container, widgets, code, info, readOnly, filename) ->
   if typeof container == 'string'
     container = document.querySelector(container)
 
@@ -24,6 +24,8 @@ window.bindWidgets = (container, widgets, code, info, readOnly) ->
     code,
     info,
     readOnly,
+    exportForm: false,
+    filename: filename,
     consoleOutput: '',
     outputWidgetOutput: '',
     markdown: markdown.toHTML
@@ -92,6 +94,9 @@ class window.WidgetController
         else if widget.reporter?
           try
             widget.currentValue = widget.reporter()
+            isInvalidNumber = (n) -> isNaN(n) or n in [undefined, null, Infinity, -Infinity]
+            if typeof widget.currentValue is "number" and isInvalidNumber(widget.currentValue)
+              widget.currentValue = 'N/A'
           catch err
             widget.currentValue = 'N/A'
         if widget.precision? and typeof widget.currentValue == 'number' and isFinite(widget.currentValue)
@@ -190,24 +195,30 @@ isValidValue = (widget, value) ->
     when 'inputBox' then not (widget.boxtype == 'Number' and isNaN(value))
     else  true
 
+# coffeelint: disable=max_line_length
 template =
   """
-  <div class="netlogo-model" style="width: {{width}};">
+  <div class="netlogo-model" style="width: {{width}}px;">
     <div class="netlogo-header">
       <label class="netlogo-widget netlogo-speed-slider">
         <span class="netlogo-label">speed</span>
         <input type="range" min=-1 max=1 step=0.01 value={{speed}} />
       </label>
 
-      <div class="netlogo-powered-by">
-        <a href="http://ccl.northwestern.edu/netlogo/">
-          <img style="vertical-align: middle;" alt="NetLogo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAANcSURBVHjarJRdaFxFFMd/M/dj7252uxubKms+bGprVyIVbNMWWqkQqtLUSpQWfSiV+oVFTcE3DeiDgvoiUSiCYLH2oVoLtQ+iaaIWWtE2FKGkkSrkq5svN+sm7ma/7p3x4W42lEbjQw8MM8yc87/nzPnNFVprbqWJXyMyXuMqx1Ni6N3ny3cX8tOHNLoBUMvESoFI2Xbs4zeO1lzREpSrMSNS1zkBDv6uo1/noz1H7mpvS4SjprAl2AZYEqzKbEowBAgBAkjPKX2599JjT7R0bj412D0JYNplPSBD1G2SmR/e6u1ikEHG2vYiGxoJmxAyIGSCI8GpCItKimtvl2JtfGujDNkX6epuAhCjNeAZxM1ocPy2Qh4toGQ5DLU+ysiuA2S3P0KgJkjAgEAlQylAA64CG/jlUk6//ng4cNWmLK0yOPNMnG99Rs9LQINVKrD+wmke7upg55PrWP3eYcwrlykpKCkoelDy/HVegQhoABNAepbACwjOt72gZkJhypX70YDWEEklue+rbnYc2MiGp1upPfYReiJJUUG58gFXu4udch1wHcjFIgy0HyIjb2yvBpT2F6t+6+f+D15lW8c9JDo7iPSdgVIRLUqL2AyHDQAOf9hfbqxvMF98eT3RuTS1avHyl+Stcphe2chP9+4k/t3RbXVl3W+Ws17FY56/w3VcbO/koS/eZLoAqrQMxADZMTYOfwpwoWjL4+bCYcgssMqGOzPD6CIkZ/3SxTJ0ayFIN6/BnBrZb2XdE1JUgkJWkfrUNRJnPyc16zsbgPyXIUJBpvc+y89nk/S8/4nek3NPGeBWMwzGvhUPnP6RubRLwfODlqqx3LSCyee2MnlwMwA2RwgO5qouVcHmksUdJweYyi8hZkrUjgT5t/ejNq0jBsSqNWsKyT9uFtxw7Bs585d3g46KOeT2bWHmtd14KyP+5mzqpsYU3OyioACMhGiqPTMocsrHId9cy9BLDzKxq8X3ctMwlV6yKSHL4fr4dd0DeQBTBUgUkvpE1kVPbqkX117ZzuSaFf4zyfz5n9A4lk0yNU7vyb7jTy1kmFGipejKvh6h9n0W995ZPTu227hqmCz33xXgFV1v9NzI96NfjndWt7XWCB/7BSICFWL+j3lAofpCtfYFb6X9MwCJZ07mUsXRGwAAAABJRU5ErkJggg=="/>
-          <span style="font-size: 16px;">powered by NetLogo</span>
-        </a>
+      <div class="netlogo-subheader">
+        {{# !readOnly }}
+        <button class="netlogo-export-button" style="margin-bottom: 10px;" id="export-button" on-click="exportnlogo">Export to NetLogo...</button>
+        {{/}}
+        <div class="netlogo-powered-by">
+          <a href="http://ccl.northwestern.edu/netlogo/">
+            <img style="vertical-align: middle;" alt="NetLogo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAANcSURBVHjarJRdaFxFFMd/M/dj7252uxubKms+bGprVyIVbNMWWqkQqtLUSpQWfSiV+oVFTcE3DeiDgvoiUSiCYLH2oVoLtQ+iaaIWWtE2FKGkkSrkq5svN+sm7ma/7p3x4W42lEbjQw8MM8yc87/nzPnNFVprbqWJXyMyXuMqx1Ni6N3ny3cX8tOHNLoBUMvESoFI2Xbs4zeO1lzREpSrMSNS1zkBDv6uo1/noz1H7mpvS4SjprAl2AZYEqzKbEowBAgBAkjPKX2599JjT7R0bj412D0JYNplPSBD1G2SmR/e6u1ikEHG2vYiGxoJmxAyIGSCI8GpCItKimtvl2JtfGujDNkX6epuAhCjNeAZxM1ocPy2Qh4toGQ5DLU+ysiuA2S3P0KgJkjAgEAlQylAA64CG/jlUk6//ng4cNWmLK0yOPNMnG99Rs9LQINVKrD+wmke7upg55PrWP3eYcwrlykpKCkoelDy/HVegQhoABNAepbACwjOt72gZkJhypX70YDWEEklue+rbnYc2MiGp1upPfYReiJJUUG58gFXu4udch1wHcjFIgy0HyIjb2yvBpT2F6t+6+f+D15lW8c9JDo7iPSdgVIRLUqL2AyHDQAOf9hfbqxvMF98eT3RuTS1avHyl+Stcphe2chP9+4k/t3RbXVl3W+Ws17FY56/w3VcbO/koS/eZLoAqrQMxADZMTYOfwpwoWjL4+bCYcgssMqGOzPD6CIkZ/3SxTJ0ayFIN6/BnBrZb2XdE1JUgkJWkfrUNRJnPyc16zsbgPyXIUJBpvc+y89nk/S8/4nek3NPGeBWMwzGvhUPnP6RubRLwfODlqqx3LSCyee2MnlwMwA2RwgO5qouVcHmksUdJweYyi8hZkrUjgT5t/ejNq0jBsSqNWsKyT9uFtxw7Bs585d3g46KOeT2bWHmtd14KyP+5mzqpsYU3OyioACMhGiqPTMocsrHId9cy9BLDzKxq8X3ctMwlV6yKSHL4fr4dd0DeQBTBUgUkvpE1kVPbqkX117ZzuSaFf4zyfz5n9A4lk0yNU7vyb7jTy1kmFGipejKvh6h9n0W995ZPTu227hqmCz33xXgFV1v9NzI96NfjndWt7XWCB/7BSICFWL+j3lAofpCtfYFb6X9MwCJZ07mUsXRGwAAAABJRU5ErkJggg=="/>
+            <span style="font-size: 16px;">powered by NetLogo</span>
+          </a>
+        </div>
       </div>
     </div>
 
-    <div style="position: relative; width: {{width}}; height: {{height}}"
+    <div style="position: relative; width: {{width}}px; height: {{height}}px"
          class="netlogo-widget-container">
       {{#widgets}}
         {{# type === 'view'               }} {{>view         }} {{/}}
@@ -256,7 +267,7 @@ template =
   </div>
   """
 
-partials =
+partials = {
   view:
     """
     <div class="netlogo-widget netlogo-view-container" style="{{>dimensions}}">
@@ -283,12 +294,15 @@ partials =
     <label class="netlogo-widget netlogo-slider netlogo-input" style="{{>dimensions}}">
       <input type="range"
              max="{{maxValue}}" min="{{minValue}}" step="{{step}}" value="{{currentValue}}" />
-      <span class="netlogo-label">{{display}}</span>
-      <span class="netlogo-value">
-        <input type="number"
-               min={{minValue}} max={{maxValue}} value={{currentValue}} step={{step}} />
-        {{#units}}{{units}}{{/}}
-      </span>
+      <div class="netlogo-slider-label">
+        <span class="netlogo-label">{{display}}</span>
+        <span class="netlogo-slider-value">
+          <input type="number"
+                 style="width: {{currentValue.toString().length + 2.5}}ch"
+                 min={{minValue}} max={{maxValue}} value={{currentValue}} step={{step}} />
+          {{#units}}{{units}}{{/}}
+        </span>
+      </div>
     </label>
     """
   button:
@@ -366,3 +380,5 @@ partials =
     left: {{ left }}px; top: {{ top }}px;
     width: {{ right - left }}px; height: {{ bottom - top }}px;
     """
+}
+# coffeelint: enable=max_line_length

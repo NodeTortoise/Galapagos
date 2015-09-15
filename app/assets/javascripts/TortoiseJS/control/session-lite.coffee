@@ -13,12 +13,14 @@ class window.SessionLite
     @_eventLoopTimeout = -1
     @_lastRedraw = 0
     @_lastUpdate = 0
-    @widgetController.ractive.on('editor.recompile', (event) => @recompile())
-    @widgetController.ractive.on('console.run', (code) => @run(code))
+    @widgetController.ractive.on('editor.recompile',   (event) => @recompile())
+    @widgetController.ractive.on('exportnlogo',        (event) => @exportnlogo(event))
+    @widgetController.ractive.on('console.run',        (code)  => @run(code))
+    @drawEveryFrame = false
 
   startLoop: ->
     @widgetController.updateWidgets()
-    if startup? then Call(startup)
+    if procedures.startup? then Call(procedures.startup)
     requestAnimationFrame(@eventLoop)
 
   updateDelay: ->
@@ -41,7 +43,7 @@ class window.SessionLite
   eventLoop: (timestamp) =>
     @_eventLoopTimeout = requestAnimationFrame(@eventLoop)
     updatesDeadline = Math.min(@_lastRedraw + @redrawDelay(), now() + MAX_UPDATE_TIME)
-    maxNumUpdates   = (now() - @_lastUpdate) / @updateDelay()
+    maxNumUpdates   = if @drawEveryFrame then 1 else (now() - @_lastUpdate) / @updateDelay()
 
     for i in [1..maxNumUpdates] by 1 # maxNumUpdates can be 0. Need to guarantee i is ascending.
       @_lastUpdate = now()
@@ -51,7 +53,7 @@ class window.SessionLite
 
     # First conditional checks if we're on time with updates. If so, we may as
     # well redraw. This keeps animations smooth for fast models. BCH 11/4/2014
-    if i > maxNumUpdates or now() - @_lastRedraw > @redrawDelay()
+    if i > maxNumUpdates or now() - @_lastRedraw > @redrawDelay() or @drawEveryFrame
       @_lastRedraw = now()
       # TODO: Once Updater.anyUpdates() exist, switch to only redrawing when there are updates
       @widgetController.redraw()
@@ -64,34 +66,83 @@ class window.SessionLite
   recompile: ->
     # This is a temporary workaround for the fact that models can't be reloaded
     # without clearing the world. BCH 1/9/2015
-    world.clearAll();
+    world.clearAll()
     @widgetController.redraw()
-    compile('code', @widgetController.code(), [], [], @widgetController.widgets, (res) ->
+    codeCompile(@widgetController.code(), [], [], @widgetController.widgets, (res) ->
       if res.model.success
         globalEval(res.model.result)
       else
         alert(res.model.result.map((err) -> err.message).join('\n')))
 
+
+  exportnlogo: ->
+    filename = window.prompt('Filename:', @widgetController.ractive.get('filename'))
+    if filename?
+      exportRequest = {
+        info:         @widgetController.ractive.get('info'),
+        code:         @widgetController.ractive.get('code'),
+        widgets:      @widgetController.widgets,
+        turtleShapes: turtleShapes,
+        linkShapes:   linkShapes
+      }
+      exportedNLogo = (new BrowserCompiler()).exportNlogo(exportRequest)
+      if (exportedNLogo.success)
+        exportBlob = new Blob([exportedNLogo.result], {type: "text/plain:charset=utf-8"})
+        saveAs(exportBlob, filename)
+      else
+        alert(exportedNLogo.result.map((err) -> err.message).join('\n'))
+
+  makeForm:(method, path, data) ->
+    form = document.createElement('form')
+    form.setAttribute('method', method)
+    form.setAttribute('action', path)
+    for name, value of data
+      field = document.createElement('input')
+      field.setAttribute('type', 'hidden')
+      field.setAttribute('name', name)
+      field.setAttribute('value', value)
+      form.appendChild(field)
+    form
+
+
   run: (code) ->
-    compile('code', @widgetController.code(), [code], [], @widgetController.widgets,
+    codeCompile(@widgetController.code(), [code], [], @widgetController.widgets,
       (res) ->
         success = res.commands[0].success
         result  = res.commands[0].result
         if (success)
           new Function(result)()
         else
-          alert(result.map((err) -> err.message).join('\n'))
-      ,
-      (err) -> alert(err))
+          alert(result.map((err) -> err.message).join('\n')))
 
 window.Tortoise = {
-  fromNlogo:         (nlogo, container, callback) ->
-    compile("nlogo", nlogo, [], [], [], makeCompileCallback(container, callback))
-  fromURL:           (url,   container, callback) ->
-    compile("url",   url,   [], [], [], makeCompileCallback(container, callback))
 
-  fromCompiledModel: (container, widgets, code, info, compiledSource = "", readOnly = false) ->
-    widgetController = bindWidgets(container, widgets, code, info, readOnly)
+  # We separate on both / and \ because we get URLs and Windows-esque filepaths
+  normalizedFileName: (path) ->
+    pathComponents = path.split(/\/|\\/)
+    decodeURI(pathComponents[pathComponents.length - 1])
+
+  fromNlogo:         (nlogo, container, path, callback) ->
+    nlogoCompile(nlogo, [], [], [], browserCompileCallback(container, callback, @normalizedFileName(path)))
+
+  fromURL:           (url,   container, callback) ->
+    req = new XMLHttpRequest()
+    req.open('GET', url)
+    req.onreadystatechange = =>
+      if req.readyState == req.DONE
+        nlogoCompile(req.responseText, [], [], [],
+          browserCompileCallback(container, callback, @normalizedFileName(url)))
+    req.send("")
+
+  fromCompiledModel: (container,
+                      widgetString,
+                      code,
+                      info,
+                      compiledSource = "",
+                      readOnly = false,
+                      filename = "export.nlogo") ->
+    widgets = globalEval(widgetString)
+    widgetController = bindWidgets(container, widgets, code, info, readOnly, filename)
     window.modelConfig ?= {}
     modelConfig.plotOps = widgetController.plotOps
     modelConfig.mouse = widgetController.mouse
@@ -103,24 +154,50 @@ window.Tortoise = {
 
 window.AgentModel = tortoise_require('agentmodel')
 
-makeCompileCallback = (container, callback) ->
+browserCompileCallback = (container, callback, filename) ->
   (res) ->
     if res.model.success
-      callback(Tortoise.fromCompiledModel(container, res.widgets, res.code, res.info, res.model.result))
+      callback(Tortoise.fromCompiledModel(container, res.widgets, res.code,
+        res.info, res.model.result, false, filename))
     else
       container.innerHTML = res.model.result.map((err) -> err.message).join('<br/>')
 
-window.compile = (source, model, commands, reporters, widgets,
-                  onFulfilled, onRejected = (s) -> throw s) ->
+window.nlogoCompile = (model, commands, reporters, widgets, onFulfilled) ->
+  onFulfilled((new BrowserCompiler()).fromNlogo(model, commands))
+
+window.codeCompile = (code, commands, reporters, widgets, onFulfilled) ->
   compileParams = {
-    model: model,
-    widgets: JSON.stringify(widgets),
-    commands: JSON.stringify(commands),
+    code:         code,
+    widgets:      widgets,
+    commands:     commands,
+    reporters:    reporters,
+    turtleShapes: turtleShapes ? [],
+    linkShapes:   linkShapes ? []
+  }
+  onFulfilled((new BrowserCompiler()).fromModel(compileParams))
+
+window.serverNlogoCompile = (model, commands, reporters, widgets, onFulfilled) ->
+  compileParams = {
+    model:     model,
+    commands:  JSON.stringify(commands),
     reporters: JSON.stringify(reporters)
   }
   compileCallback = (res) ->
     onFulfilled(JSON.parse(res))
-  ajax('/compile-'+source, compileParams, compileCallback)
+  ajax('/compile-nlogo', compileParams, compileCallback)
+
+window.serverCodeCompile = (code, commands, reporters, widgets, onFulfilled) ->
+  compileParams = {
+    code,
+    widgets:      JSON.stringify(widgets),
+    commands:     JSON.stringify(commands),
+    reporters:    JSON.stringify(reporters),
+    turtleShapes: JSON.stringify(turtleShapes ? []),
+    linkShapes:   JSON.stringify(linkShapes ? [])
+  }
+  compileCallback = (res) ->
+    onFulfilled(JSON.parse(res))
+  ajax('/compile-code', compileParams, compileCallback)
 
 window.ajax = (url, params, callback) ->
   paramPairs = for key, value of params

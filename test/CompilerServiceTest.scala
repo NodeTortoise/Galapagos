@@ -1,12 +1,12 @@
-package controllers
-
 import
   scalaz.{ Scalaz, NonEmptyList },
     Scalaz.ToValidationOps
 
 import
-  org.nlogo.{ core, tortoise },
-    core.CompilerException,
+  org.nlogo.{ core, parse, tortoise },
+    core.{ CompilerException, model, Model },
+      model.ModelReader,
+    parse.CompilerUtilities,
     tortoise.CompiledModel
 
 import
@@ -16,16 +16,26 @@ import
   play.api.libs.json.Json
 
 import
-  CompilerService._
-
-import
-  models.Util.usingSource
+  models.{ compile, json, Util },
+    compile.{ CompileResponse, IDedValuesMap, IDedValuesSeq },
+    json.Writers.compileResponseWrites,
+    Util.usingSource
 
 class CompilerServiceTest extends PlaySpec {
 
+  import CompilerServiceHelpers._
+
+  private implicit def map2IdedValues[T](map: Map[String, T]): IDedValuesMap[T] = IDedValuesMap(map)
+  private implicit def seq2IdedValues[T](seq: Seq[T]):         IDedValuesSeq[T] = IDedValuesSeq(seq)
+
+  private val CommandsKey  = "commands"
+  private val InfoKey      = "info"
+  private val ModelKey     = "model"
+  private val ReportersKey = "reporters"
+
   "CompilerService" must {
     "compile nlogo contents" in {
-      val result = CompilerService.compile(CompiledModel.fromNlogoContents(wolfSheep), Seq(), Seq())
+      val result = CompileResponse.fromModel(wsModelV, Seq(), Seq())
       result.model mustBe wsModel.compiledCode.successNel[CompilerException]
     }
 
@@ -33,7 +43,7 @@ class CompilerServiceTest extends PlaySpec {
       val commands  = Seq("crt 1", "ca")
       val reporters = Seq("count turtles", "5 + 10", "4 + 2")
 
-      val result            = CompilerService.compile(CompiledModel.fromNlogoContents(wolfSheep), commands, reporters)
+      val result            = CompileResponse.fromModel(wsModelV, commands, reporters)
       val compiledCommands  = commands  map { s => wsModel.compileCommand(s) }
       val compiledReporters = reporters map { s => wsModel.compileReporter(s) }
 
@@ -45,7 +55,7 @@ class CompilerServiceTest extends PlaySpec {
       val commands  = Map("one" -> "crt 1", "two" -> "ca")
       val reporters = Map("one" -> "count turtles", "two" -> "5 + 10", "three" -> "4 + 2")
 
-      val result            = CompilerService.compile(CompiledModel.fromNlogoContents(wolfSheep), commands, reporters)
+      val result            = CompileResponse.fromModel(wsModelV, commands, reporters)
       val compiledCommands  = commands.mapValues  { s => wsModel.compileCommand(s) }
       val compiledReporters = reporters.mapValues { s => wsModel.compileReporter(s) }
 
@@ -67,9 +77,9 @@ class CompilerServiceTest extends PlaySpec {
         "idontexit 4 5" -> false,
         "grass"         -> true
       )
-      val result    = CompilerService.compile(CompiledModel.fromNlogoContents(wolfSheep),
-                                              commands.keys.toSeq,
-                                              reporters.keys.toSeq)
+      val result    = CompileResponse.fromModel(wsModelV,
+                                                commands.keys.toSeq,
+                                                reporters.keys.toSeq)
 
       result.commands  mapValues { _.isSuccess } mustBe IDedValuesSeq(commands.values.toSeq)
       result.reporters mapValues { _.isSuccess } mustBe IDedValuesSeq(reporters.values.toSeq)
@@ -83,15 +93,15 @@ class CompilerServiceTest extends PlaySpec {
                                     Seq("command".successNel[CompilerException]),
                                     Seq("reporter".successNel[CompilerException]))
       val allGoodJson = Json.toJson(allGood)
-      (allGoodJson \ modelKey \ "success").as[Boolean] mustBe true
-      (allGoodJson \ modelKey \ "result").as[String] mustBe allGood.model.getOrElse(
+      (allGoodJson \ ModelKey \ "success").as[Boolean] mustBe true
+      (allGoodJson \ ModelKey \ "result").as[String] mustBe allGood.model.getOrElse(
         fail("Bad test: CompileResult was supposed to contain a String")
       )
-      ((allGoodJson \ commandsKey)(0) \ "success").as[Boolean] mustBe true
-      (allGoodJson \ infoKey).as[String] mustBe "some info"
-      ((allGoodJson \ commandsKey)(0) \ "result").as[String] mustBe "command"
-      ((allGoodJson \ reportersKey)(0) \ "success").as[Boolean] mustBe true
-      ((allGoodJson \ reportersKey)(0) \ "result").as[String] mustBe "reporter"
+      ((allGoodJson \ CommandsKey)(0) \ "success").as[Boolean] mustBe true
+      (allGoodJson \ InfoKey).as[String] mustBe "some info"
+      ((allGoodJson \ CommandsKey)(0) \ "result").as[String] mustBe "command"
+      ((allGoodJson \ ReportersKey)(0) \ "success").as[Boolean] mustBe true
+      ((allGoodJson \ ReportersKey)(0) \ "result").as[String] mustBe "reporter"
 
       val allGoodMap = CompileResponse("model test".successNel[CompilerException],
                                        "some info",
@@ -100,7 +110,7 @@ class CompilerServiceTest extends PlaySpec {
                                        Map("id" -> "commands test".successNel),
                                        Seq())
       val allGoodMapJson = Json.toJson(allGoodMap)
-      (allGoodMapJson \ commandsKey \ "id" \ "success").as[Boolean] mustBe true
+      (allGoodMapJson \ CommandsKey \ "id" \ "success").as[Boolean] mustBe true
 
       val notGood = CompileResponse(new CompilerException("error", 0, 10, "").failureNel[String],
                                     "info",
@@ -109,37 +119,42 @@ class CompilerServiceTest extends PlaySpec {
                                     Seq(),
                                     Seq())
       val notGoodJson = Json.toJson(notGood)
-      (notGoodJson \ modelKey \ "success").as[Boolean] mustBe false
-      ((notGoodJson \ modelKey \ "result")(0) \ "message").as[String] mustBe notGood.model.fold(
+      (notGoodJson \ ModelKey \ "success").as[Boolean] mustBe false
+      ((notGoodJson \ ModelKey \ "result")(0) \ "message").as[String] mustBe notGood.model.fold(
         _.head.getMessage,
         success => fail("Bad test: CompileResult was supposed to contain a CompilerException")
       )
     }
 
-    "compile and serialize widgets without error" in {
-      val modelResponse = CompilerService.compile(widgetModel, Seq(), Seq())
-      val widgetString = Json.toJson(modelResponse.widgets).toString
-      widgetModel.fold(
-        errs  => fail(errs.stream.mkString("\n")),
-        model => parseWidgets(widgetString).fold(
-          errs    => fail(errs.stream.mkString("\n")),
-          // The mkString("\n")s make failures easier to read.
-          widgets => widgets.mkString("\n") mustBe model.model.widgets.mkString("\n")
-        )
-      )
+    "convert models to nlogo" in {
+      val nlogo = CompileResponse.exportNlogo(wsModel.successNel)
+        .getOrElse(throw new Exception("Exporting should have succeeded, but failed"))
+      openModel(nlogo) mustBe wsModel.model
     }
   }
 
-  private val wolfSheep = usingSource(_.fromFile("public/modelslib/Sample Models/Biology/Wolf Sheep Predation.nlogo"))(_.mkString)
-  private val wsModel = {
+  val wsModel = {
     val modelShouldHaveCompiled = (failures: NonEmptyList[CompilerException]) =>
       s"""|Model should have compiled but failed with the following messages:
           |${failures.stream.mkString("\n")}""".stripMargin
-    CompiledModel.fromNlogoContents(wolfSheep) valueOr { e => fail(modelShouldHaveCompiled(e)) }
+    wsModelV valueOr { e => fail(modelShouldHaveCompiled(e)) }
   }
+}
 
-  private val widgetModel = CompiledModel.fromNlogoContents(
-    usingSource(_.fromFile("public/modelslib/test/tortoise/Widgets.nlogo"))(_.mkString)
-  )
+object CompilerServiceHelpers {
+  private def modelText(modelName: String): String =
+    usingSource(_.fromFile(s"public/modelslib/$modelName"))(_.mkString)
 
+  val breedProcedures = modelText("Code Examples/Breed Procedures Example.nlogo")
+
+  val linkBreeds = modelText("Code Examples/Link Breeds Example.nlogo")
+
+  val wolfSheep = modelText("Sample Models/Biology/Wolf Sheep Predation.nlogo")
+
+  val wsModelV = CompiledModel.fromModel(openModel(wolfSheep))
+
+  def openModel(model: String): Model =
+    ModelReader.parseModel(model, CompilerUtilities)
+
+  val widgetModel = CompiledModel.fromModel(openModel(modelText("test/tortoise/Widgets.nlogo")))
 }

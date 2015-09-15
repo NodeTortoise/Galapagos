@@ -2,7 +2,7 @@
   position: absolute;
   background: #ccc;
   -moz-box-sizing: border-box;
-       box-sizing: border-box;
+  box-sizing: border-box;
   border: 1px solid #bbb;
   border-radius: 2px;
 }
@@ -64,4 +64,3 @@
   right: 0;
   width: 100%;
 }
-/*# sourceMappingURL=simplescrollbars.css.map */

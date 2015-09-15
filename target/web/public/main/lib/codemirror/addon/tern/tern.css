@@ -15,7 +15,7 @@
   text-align: center;
   color: white;
   -moz-box-sizing: border-box;
-       box-sizing: border-box;
+  box-sizing: border-box;
 }
 .CodeMirror-Tern-completion-unknown:before {
   content: "?";
@@ -63,6 +63,8 @@
   max-width: 40em;
   position: absolute;
   z-index: 10;
+  -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
   box-shadow: 2px 3px 5px rgba(0,0,0,.2);
 
   transition: opacity 1s;
@@ -82,4 +84,3 @@
 .CodeMirror-Tern-farg-current { text-decoration: underline; }
 .CodeMirror-Tern-type { color: #07c; }
 .CodeMirror-Tern-fhint-guess { opacity: .7; }
-/*# sourceMappingURL=tern.css.map */

@@ -200,11 +200,13 @@ function testVim(name, run, opts, expectedFail) {
     CodeMirror.Vim.resetVimGlobalState_();
     var successful = false;
     var savedOpenNotification = cm.openNotification;
+    var savedOpenDialog = cm.openDialog;
     try {
       run(cm, vim, helpers);
       successful = true;
     } finally {
       cm.openNotification = savedOpenNotification;
+      cm.openDialog = savedOpenDialog;
       if (!successful || verbose) {
         place.style.visibility = "visible";
       } else {
@@ -2460,6 +2462,13 @@ testVim('macro_multislash_search', function(cm, vim, helpers) {
   helpers.doKeys('@', 'd');
   helpers.assertCursorAt(0, 15);
 }, { value: 'one line of text to rule them all.'});
+testVim('macro_last_ex_command_register', function (cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doEx('s/a/b');
+  helpers.doKeys('2', '@', ':');
+  eq('bbbaa', cm.getValue());
+  helpers.assertCursorAt(0, 2);
+}, { value: 'aaaaa'});
 testVim('macro_parens', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'z', 'i');
@@ -3549,6 +3558,10 @@ testSubstitute('ex_substitute_multibackslash_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\\\\\\\\two \n three\\\\\\\\four', // 2*8 backslashes.
   expr: '%s/,/\\\\\\\\\\\\\\\\/g'}); // 16 backslashes.
+testSubstitute('ex_substitute_newline_replacement', {
+  value: 'one,two \n three,four',
+  expectedValue: 'one\ntwo \n three\nfour',
+  expr: '%s/,/\\n/g'});
 testSubstitute('ex_substitute_braces_word', {
   value: 'ababab abb ab{2}',
   expectedValue: 'ab abb ab{2}',

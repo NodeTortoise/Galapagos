@@ -10,7 +10,6 @@
 
 .cm-s-3024-day.CodeMirror {background: #f7f7f7; color: #3a3432;}
 .cm-s-3024-day div.CodeMirror-selected {background: #d6d5d4 !important;}
-.cm-s-3024-day.CodeMirror ::-moz-selection { background: #d6d5d4; }
 .cm-s-3024-day.CodeMirror ::selection { background: #d6d5d4; }
 .cm-s-3024-day.CodeMirror ::-moz-selection { background: #d9d9d9; }
 
@@ -39,4 +38,3 @@
 
 .cm-s-3024-day .CodeMirror-activeline-background {background: #e8f2ff !important;}
 .cm-s-3024-day .CodeMirror-matchingbracket { text-decoration: underline; color: #a16a94 !important;}
-/*# sourceMappingURL=3024-day.css.map */

@@ -11,26 +11,14 @@
 
 <html>
   <head>
-      <!--(NodeTortoise)--title>%_MODEL_NAME_%</title>
-      <link rel="stylesheet" type="text/css" href="/css/style.css" /!--(NodeTortoise)-->
   </head>
   <body>
     <div id="model-container"></div>
-    <!--(NodeTortoise)--div id="model-users"></div!--(NodeTortoise)-->
     <style>
       @Html(css)
     </style>
-    <!--(NodeTortoise)--script src="/socket.io/socket.io.js"></script>
-    <script src="/js/_jquery.min.js"></script>
-    <script src="/libs/Helper.js"></script>
-    <script src="/js/_Node.js"></script!--(NodeTortoise)-->
     <script type="text/javascript">
       @Html(js)
-    </script>
-    <!--(NodeTortoise)--script>
-        _Node.create();
-    </script!--(NodeTortoise)-->
-    <script>
       var session =
         (function () {
           var widgets = @Html(widgets);

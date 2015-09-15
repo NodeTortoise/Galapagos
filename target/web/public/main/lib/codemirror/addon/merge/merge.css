@@ -29,7 +29,7 @@
   display: inline-block;
   height: 100%;
   -moz-box-sizing: border-box;
-       box-sizing: border-box;
+  box-sizing: border-box;
   overflow: hidden;
   border-left: 1px solid #ddd;
   border-right: 1px solid #ddd;
@@ -110,4 +110,3 @@
   border-radius: 4px;
 }
 .CodeMirror-merge-collapsed-line .CodeMirror-gutter-elt { display: none; }
-/*# sourceMappingURL=merge.css.map */

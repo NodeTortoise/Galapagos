@@ -13,7 +13,8 @@
       });
       return infoTabEditor.on('change', (function(_this) {
         return function() {
-          return _this.set('rawText', infoTabEditor.getValue());
+          _this.set('rawText', infoTabEditor.getValue());
+          return _this.set('info', infoTabEditor.getValue());
         };
       })(this));
     },

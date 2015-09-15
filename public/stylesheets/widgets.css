@@ -1,6 +1,4 @@
 .netlogo-model {
-    border: 2px solid black;
-    border-radius: 20px;
     display: flex;
     padding: 20px;
     flex-flow: column;
@@ -9,7 +7,7 @@
 .netlogo-header {
     display: flex;
     flex-flow: row;
-    align-items: baseline;
+    align-items: center;
 }
 
 .netlogo-widget {
@@ -67,6 +65,14 @@
     background-color: white;
     margin: 10px;
 }
+
+.netlogo-export-button {
+    flex: 1;
+    text-align: center;
+    background-color: rgb(240, 240, 240);
+    border-color: rgb(238, 238, 238);
+}
+
 .netlogo-code {
     flex: 1 1 auto;
     font-family: monospace;
@@ -164,6 +170,10 @@
     padding: 0px;
 }
 
+.netlogo-button.clear-button {
+    padding: 5px;
+}
+
 .netlogo-button > span {
     /* For some reason, Safari doesn't like justify-content in buttons,
        we have to resort to putting a span in the button that can then be
@@ -203,7 +213,7 @@
     cursor: default;
 }
 
-.netlogo-slider > input[type=range] {
+.netlogo-slider input[type=range] {
     padding: 0px;
     width: 100%;
     margin: 0px;
@@ -213,26 +223,29 @@
     background-color: transparent;
 }
 
-.netlogo-slider > .netlogo-label {
-    float: left;
+.netlogo-slider-label {
+    display: flex;
+    justify-content: space-between;
 }
 
-.netlogo-slider > .netlogo-value {
-    margin: 0px;
-    border: 1px;
-    padding: 0px;
-    text-align: right;
-    display: block;
+.netlogo-slider-label .netlogo-label {
+    text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1 1 auto;
 }
 
-.netlogo-slider > .netlogo-value > input[type=number] {
+.netlogo-slider-label .netlogo-slider-value {
+    flex: 0 0 auto;
+}
+
+.netlogo-slider-label input[type=number] {
     margin: 0px;
     border: 1px;
     padding: 0px;
-    text-align: right;
-    width: 45px;
 }
+
 
 .netlogo-monitor {
     padding: 2px 4px;
@@ -271,4 +284,9 @@
 
 .netlogo-forever-button > input {
     display: none;
+}
+
+.netlogo-subheader {
+    display: flex;
+    flex-flow: column;
 }

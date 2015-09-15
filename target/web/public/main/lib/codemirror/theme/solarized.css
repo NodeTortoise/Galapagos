@@ -47,6 +47,8 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
   text-shadow: none;
 }
 
+.cm-s-solarized .cm-header { color: #586e75; }
+.cm-s-solarized .cm-quote { color: #93a1a1; }
 
 .cm-s-solarized .cm-keyword { color: #cb4b16 }
 .cm-s-solarized .cm-atom { color: #d33682; }
@@ -73,8 +75,6 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
 .cm-s-solarized .CodeMirror-nonmatchingbracket { color: #dc322f; }
 .cm-s-solarized .cm-tag { color: #93a1a1 }
 .cm-s-solarized .cm-attribute {  color: #2aa198; }
-.cm-s-solarized .cm-header { color: #586e75; }
-.cm-s-solarized .cm-quote { color: #93a1a1; }
 .cm-s-solarized .cm-hr {
   color: transparent;
   border-top: 1px solid #586e75;
@@ -85,9 +85,7 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
 .cm-s-solarized .cm-em {
   color: #999;
   text-decoration: underline;
-  -webkit-text-decoration-style: dotted;
-     -moz-text-decoration-style: dotted;
-          text-decoration-style: dotted;
+  text-decoration-style: dotted;
 }
 .cm-s-solarized .cm-strong { color: #eee; }
 .cm-s-solarized .cm-error,
@@ -97,12 +95,10 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
 }
 
 .cm-s-solarized.cm-s-dark .CodeMirror-selected { background: #073642; }
-.cm-s-solarized.cm-s-dark.CodeMirror ::-moz-selection { background: rgba(7, 54, 66, 0.99); }
 .cm-s-solarized.cm-s-dark.CodeMirror ::selection { background: rgba(7, 54, 66, 0.99); }
 .cm-s-solarized.cm-s-dark.CodeMirror ::-moz-selection { background: rgba(7, 54, 66, 0.99); }
 
 .cm-s-solarized.cm-s-light .CodeMirror-selected { background: #eee8d5; }
-.cm-s-solarized.cm-s-light.CodeMirror ::-moz-selection { background: #eee8d5; }
 .cm-s-solarized.cm-s-light.CodeMirror ::selection { background: #eee8d5; }
 .cm-s-solarized.cm-s-lightCodeMirror ::-moz-selection { background: #eee8d5; }
 
@@ -112,6 +108,8 @@ http://ethanschoonover.com/solarized/img/solarized-palette.png
 
 /* Little shadow on the view-port of the buffer view */
 .cm-s-solarized.CodeMirror {
+  -moz-box-shadow: inset 7px 0 12px -6px #000;
+  -webkit-box-shadow: inset 7px 0 12px -6px #000;
   box-shadow: inset 7px 0 12px -6px #000;
 }
 
@@ -165,4 +163,3 @@ view-port
 .cm-s-solarized.cm-s-light .CodeMirror-activeline-background {
   background: rgba(0, 0, 0, 0.10);
 }
-/*# sourceMappingURL=solarized.css.map */

@@ -4,20 +4,23 @@ package views.html
 import play.twirl.api._
 import play.twirl.api.TemplateMagic._
 
-import play.api.templates.PlayMagic._
+
+     object createStandalone_Scope0 {
 import models._
 import controllers._
 import play.api.i18n._
+import views.html._
+import play.api.templates.PlayMagic._
 import play.api.mvc._
 import play.api.data._
-import views.html._
 
-/**/
-object createStandalone extends BaseScalaTemplate[play.twirl.api.HtmlFormat.Appendable,Format[play.twirl.api.HtmlFormat.Appendable]](play.twirl.api.HtmlFormat) with play.twirl.api.Template0[play.twirl.api.HtmlFormat.Appendable] {
+class createStandalone extends BaseScalaTemplate[play.twirl.api.HtmlFormat.Appendable,Format[play.twirl.api.HtmlFormat.Appendable]](play.twirl.api.HtmlFormat) with play.twirl.api.Template0[play.twirl.api.HtmlFormat.Appendable] {
 
   /**/
   def apply():play.twirl.api.HtmlFormat.Appendable = {
-      _display_ {
+    _display_ {
+      {
+
 
 Seq[Any](_display_(/*1.2*/views/*1.7*/.html.mainTheme/*1.22*/ {_display_(Seq[Any](format.raw/*1.24*/("""
   """),format.raw/*2.3*/("""<script type="text/javascript">
@@ -73,7 +76,9 @@ Seq[Any](_display_(/*1.2*/views/*1.7*/.html.mainTheme/*1.22*/ {_display_(Seq[Any
   """),format.raw/*52.3*/("""</script>
 
 """)))}),format.raw/*54.2*/("""
-"""))}
+"""))
+      }
+    }
   }
 
   def render(): play.twirl.api.HtmlFormat.Appendable = apply()
@@ -83,13 +88,19 @@ Seq[Any](_display_(/*1.2*/views/*1.7*/.html.mainTheme/*1.22*/ {_display_(Seq[Any
   def ref: this.type = this
 
 }
+
+
+}
+
+/**/
+object createStandalone extends createStandalone_Scope0.createStandalone
               /*
                   -- GENERATED --
-                  DATE: Sat Jun 06 15:48:04 UTC 2015
-                  SOURCE: /home/ubuntu/TFIA/Galapagos/app/views/createStandalone.scala.html
-                  HASH: 19673aa15583695bcc2f6980a68377a3591cae19
-                  MATRIX: 591->1|603->6|626->21|665->23|694->26|769->74|797->75|825->76|896->120|924->121|962->132|1196->340|1223->341|1330->420|1359->421|1395->430|1463->470|1492->471|1521->472|1567->490|1596->491|1670->537|1699->538|1740->551|1864->648|1893->649|1929->658|1957->659|2023->697|2052->698|2091->709|2300->891|2328->892|2402->939|2417->945|2473->980|2544->1024|2559->1030|2621->1071|2699->1122|2714->1128|2770->1163|3635->2000|3664->2001|3698->2008|3822->2105|3850->2106|3880->2109|3922->2121
-                  LINES: 22->1|22->1|22->1|22->1|23->2|24->3|24->3|24->3|25->4|25->4|26->5|29->8|29->8|31->10|31->10|32->11|32->11|32->11|32->11|32->11|32->11|33->12|33->12|34->13|36->15|36->15|37->16|37->16|39->18|39->18|40->19|43->22|43->22|46->25|46->25|46->25|47->26|47->26|47->26|48->27|48->27|48->27|69->48|69->48|70->49|72->51|72->51|73->52|75->54
+                  DATE: Tue Sep 15 06:06:04 UTC 2015
+                  SOURCE: /home/ubuntu/Galapagos/app/views/createStandalone.scala.html
+                  HASH: c247151723c06e3e6ed3adf06b62ea50d6f0ea80
+                  MATRIX: 631->1|643->6|666->21|705->23|734->26|809->74|837->75|865->76|936->120|964->121|1002->132|1236->340|1263->341|1370->420|1399->421|1435->430|1503->470|1532->471|1561->472|1607->490|1636->491|1710->537|1739->538|1780->551|1904->648|1933->649|1969->658|1997->659|2063->697|2092->698|2131->709|2340->891|2368->892|2442->939|2457->945|2513->980|2584->1024|2599->1030|2661->1071|2739->1122|2754->1128|2810->1163|3675->2000|3704->2001|3738->2008|3862->2105|3890->2106|3920->2109|3962->2121
+                  LINES: 25->1|25->1|25->1|25->1|26->2|27->3|27->3|27->3|28->4|28->4|29->5|32->8|32->8|34->10|34->10|35->11|35->11|35->11|35->11|35->11|35->11|36->12|36->12|37->13|39->15|39->15|40->16|40->16|42->18|42->18|43->19|46->22|46->22|49->25|49->25|49->25|50->26|50->26|50->26|51->27|51->27|51->27|72->48|72->48|73->49|75->51|75->51|76->52|78->54
                   -- GENERATED --
               */
           

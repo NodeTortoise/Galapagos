@@ -2,7 +2,6 @@
 
 .cm-s-blackboard.CodeMirror { background: #0C1021; color: #F8F8F8; }
 .cm-s-blackboard .CodeMirror-selected { background: #253B76 !important; }
-.cm-s-blackboard.CodeMirror ::-moz-selection { background: rgba(37, 59, 118, .99); }
 .cm-s-blackboard.CodeMirror ::selection { background: rgba(37, 59, 118, .99); }
 .cm-s-blackboard.CodeMirror ::-moz-selection { background: rgba(37, 59, 118, .99); }
 .cm-s-blackboard .CodeMirror-gutters { background: #0C1021; border-right: 0; }
@@ -31,4 +30,3 @@
 
 .cm-s-blackboard .CodeMirror-activeline-background {background: #3C3636 !important;}
 .cm-s-blackboard .CodeMirror-matchingbracket {outline:1px solid grey;color:white !important}
-/*# sourceMappingURL=blackboard.css.map */

@@ -8,13 +8,11 @@
   PlotOps = tortoise_require('engine/plot/plotops');
 
   window.HighchartsOps = (function(_super) {
-    var _penNameToSeriesNum;
-
     __extends(HighchartsOps, _super);
 
     HighchartsOps.prototype._chart = void 0;
 
-    _penNameToSeriesNum = void 0;
+    HighchartsOps.prototype._penNameToSeriesNum = void 0;
 
     function HighchartsOps(elemID) {
       var addPoint, registerPen, reset, resetPen, resize, updatePenColor, updatePenMode;

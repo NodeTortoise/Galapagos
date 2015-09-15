@@ -6,6 +6,9 @@
 
   margin: 0;
   padding: 2px;
+
+  -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
   box-shadow: 2px 3px 5px rgba(0,0,0,.2);
   border-radius: 3px;
   border: 1px solid silver;
@@ -33,4 +36,3 @@ li.CodeMirror-hint-active {
   background: #08f;
   color: white;
 }
-/*# sourceMappingURL=show-hint.css.map */

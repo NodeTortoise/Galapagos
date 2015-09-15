@@ -10,7 +10,6 @@
 
 .cm-s-paraiso-dark.CodeMirror {background: #2f1e2e; color: #b9b6b0;}
 .cm-s-paraiso-dark div.CodeMirror-selected {background: #41323f !important;}
-.cm-s-paraiso-dark.CodeMirror ::-moz-selection { background: rgba(65, 50, 63, .99); }
 .cm-s-paraiso-dark.CodeMirror ::selection { background: rgba(65, 50, 63, .99); }
 .cm-s-paraiso-dark.CodeMirror ::-moz-selection { background: rgba(65, 50, 63, .99); }
 .cm-s-paraiso-dark .CodeMirror-gutters {background: #2f1e2e; border-right: 0px;}
@@ -37,4 +36,3 @@
 
 .cm-s-paraiso-dark .CodeMirror-activeline-background {background: #4D344A !important;}
 .cm-s-paraiso-dark .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}
-/*# sourceMappingURL=paraiso-dark.css.map */
