@@ -68,7 +68,7 @@ class window.SessionLite
     # without clearing the world. BCH 1/9/2015
     world.clearAll()
     @widgetController.redraw()
-    codeCompile(@widgetController.code(), [], [], @widgetController.widgets, (res) ->
+    compile('code', @widgetController.code(), [], [], @widgetController.widgets, (res) ->
       if res.model.success
         globalEval(res.model.result)
       else
@@ -78,19 +78,14 @@ class window.SessionLite
   exportnlogo: ->
     filename = window.prompt('Filename:', @widgetController.ractive.get('filename'))
     if filename?
-      exportRequest = {
-        info:         @widgetController.ractive.get('info'),
-        code:         @widgetController.ractive.get('code'),
-        widgets:      @widgetController.widgets,
-        turtleShapes: turtleShapes,
-        linkShapes:   linkShapes
-      }
-      exportedNLogo = (new BrowserCompiler()).exportNlogo(exportRequest)
-      if (exportedNLogo.success)
-        exportBlob = new Blob([exportedNLogo.result], {type: "text/plain:charset=utf-8"})
-        saveAs(exportBlob, filename)
-      else
-        alert(exportedNLogo.result.map((err) -> err.message).join('\n'))
+      form = @makeForm('post', '/export-code', {
+        filename: filename,
+        info:     @widgetController.ractive.get('info'),
+        model:    @widgetController.ractive.get('code'),
+        widgets:  JSON.stringify(@widgetController.widgets)
+      })
+      document.body.appendChild(form)
+      form.submit()
 
   makeForm:(method, path, data) ->
     form = document.createElement('form')
@@ -106,33 +101,27 @@ class window.SessionLite
 
 
   run: (code) ->
-    codeCompile(@widgetController.code(), [code], [], @widgetController.widgets,
+    compile('code', @widgetController.code(), [code], [], @widgetController.widgets,
       (res) ->
         success = res.commands[0].success
         result  = res.commands[0].result
         if (success)
           new Function(result)()
         else
-          alert(result.map((err) -> err.message).join('\n')))
+          alert(result.map((err) -> err.message).join('\n'))
+      ,
+      (err) -> alert(err))
 
 window.Tortoise = {
-
-  # We separate on both / and \ because we get URLs and Windows-esque filepaths
   normalizedFileName: (path) ->
+    # We separate on both / and \ because we get URLs and Windows-esque filepaths
     pathComponents = path.split(/\/|\\/)
     decodeURI(pathComponents[pathComponents.length - 1])
 
   fromNlogo:         (nlogo, container, path, callback) ->
-    nlogoCompile(nlogo, [], [], [], browserCompileCallback(container, callback, @normalizedFileName(path)))
-
+    compile("nlogo", nlogo, [], [], [], makeCompileCallback(container, callback, @normalizedFileName(path)))
   fromURL:           (url,   container, callback) ->
-    req = new XMLHttpRequest()
-    req.open('GET', url)
-    req.onreadystatechange = =>
-      if req.readyState == req.DONE
-        nlogoCompile(req.responseText, [], [], [],
-          browserCompileCallback(container, callback, @normalizedFileName(url)))
-    req.send("")
+    compile("url",   url,   [], [], [], makeCompileCallback(container, callback, @normalizedFileName(url)))
 
   fromCompiledModel: (container,
                       widgetString,
@@ -154,7 +143,7 @@ window.Tortoise = {
 
 window.AgentModel = tortoise_require('agentmodel')
 
-browserCompileCallback = (container, callback, filename) ->
+makeCompileCallback = (container, callback, filename) ->
   (res) ->
     if res.model.success
       callback(Tortoise.fromCompiledModel(container, res.widgets, res.code,
@@ -162,42 +151,19 @@ browserCompileCallback = (container, callback, filename) ->
     else
       container.innerHTML = res.model.result.map((err) -> err.message).join('<br/>')
 
-window.nlogoCompile = (model, commands, reporters, widgets, onFulfilled) ->
-  onFulfilled((new BrowserCompiler()).fromNlogo(model, commands))
-
-window.codeCompile = (code, commands, reporters, widgets, onFulfilled) ->
+window.compile = (source, model, commands, reporters, widgets,
+                  onFulfilled, onRejected = (s) -> throw s) ->
   compileParams = {
-    code:         code,
-    widgets:      widgets,
-    commands:     commands,
-    reporters:    reporters,
-    turtleShapes: turtleShapes ? [],
-    linkShapes:   linkShapes ? []
-  }
-  onFulfilled((new BrowserCompiler()).fromModel(compileParams))
-
-window.serverNlogoCompile = (model, commands, reporters, widgets, onFulfilled) ->
-  compileParams = {
-    model:     model,
-    commands:  JSON.stringify(commands),
-    reporters: JSON.stringify(reporters)
-  }
-  compileCallback = (res) ->
-    onFulfilled(JSON.parse(res))
-  ajax('/compile-nlogo', compileParams, compileCallback)
-
-window.serverCodeCompile = (code, commands, reporters, widgets, onFulfilled) ->
-  compileParams = {
-    code,
-    widgets:      JSON.stringify(widgets),
-    commands:     JSON.stringify(commands),
-    reporters:    JSON.stringify(reporters),
+    model: model,
+    widgets: JSON.stringify(widgets),
+    commands: JSON.stringify(commands),
+    reporters: JSON.stringify(reporters),
     turtleShapes: JSON.stringify(turtleShapes ? []),
-    linkShapes:   JSON.stringify(linkShapes ? [])
+    linkShapes: JSON.stringify(linkShapes ? [])
   }
   compileCallback = (res) ->
     onFulfilled(JSON.parse(res))
-  ajax('/compile-code', compileParams, compileCallback)
+  ajax('/compile-'+source, compileParams, compileCallback)
 
 window.ajax = (url, params, callback) ->
   paramPairs = for key, value of params

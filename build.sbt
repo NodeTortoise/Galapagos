@@ -1,7 +1,5 @@
 import com.typesafe.sbt.web.Import.WebKeys.webJarsDirectory
 
-import org.nlogo.PlayScrapePlugin.credentials.{ fromCredentialsProfile, fromEnvironmentVariables }
-
 name := "Galapagos"
 
 version := "1.0-SNAPSHOT"
@@ -19,13 +17,10 @@ scalacOptions ++= Seq(
   "-Xfatal-warnings"
 )
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, org.nlogo.PlayScrapePlugin)
-
-val tortoiseVersion = "0.1-0aff5c0"
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 libraryDependencies ++= Seq(
-  "org.nlogo" % "tortoise" % tortoiseVersion,
-  "org.nlogo" % "netlogowebjs" % tortoiseVersion,
+  "org.nlogo" % "tortoise" % "0.1-fc2f905",
   cache,
   "com.typesafe.akka" %% "akka-testkit" % "2.3.11" % "test",
   "org.scalatestplus" %% "play" % "1.4.0-M3" % "test"
@@ -33,7 +28,6 @@ libraryDependencies ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.webjars" % "chosen" % "1.3.0",
-  "org.webjars.npm" % "filesaver.js" % "0.1.1",
   "org.webjars" % "highcharts" % "4.1.6",
   "org.webjars" % "jquery" % "2.1.4",
   "org.webjars" % "mousetrap" % "1.4.6",
@@ -63,34 +57,3 @@ includeFilter in autoprefixer := Def.setting {
 }.value
 
 routesGenerator := InjectedRoutesGenerator
-
-scrapeRoutes ++= Seq("/create-standalone", "/tortoise", "/model/list.json", "/model/statuses.json", "/netlogo-engine.js", "/netlogo-agentmodel.js", "/netlogoweb.js")
-
-scrapeDelay := 20
-
-scrapePublishCredential <<= Def.settingDyn {
-  if (System.getenv("TRAVIS") == "true")
-    Def.setting { fromEnvironmentVariables }
-  else
-    // Requires setting up a credentials profile, ask Robert for more details
-    Def.setting { fromCredentialsProfile("NetLogoWebAdmin") }
-}
-
-
-scrapePublishBucketID <<= Def.settingDyn {
-  val branchDeploy = Map("wip-static-site" -> "sample-cdn")
-
-  if (System.getenv("TRAVIS") == "true")
-    Def.setting { branchDeploy.get(System.getenv("TRAVIS_BRANCH")) }
-  else
-    Def.setting { branchDeploy.get("wip-static-site") }
-}
-
-scrapePublishDistributionID <<= Def.settingDyn {
-  val branchPublish = Map("wip-static-site" -> "E3864GFW54OVD0")
-
-  if (System.getenv("TRAVIS") == "true")
-    Def.setting { branchPublish.get(System.getenv("TRAVIS_BRANCH")) }
-  else
-    Def.setting { branchPublish.get("wip-static-site") }
-}
